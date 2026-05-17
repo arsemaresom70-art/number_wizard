@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Number Wizard</title>
+  <style>
+    :root {
+      --bg1: #0f172a;
+      --bg2: #111827;
+      --card: rgba(255,255,255,0.10);
+      --card-border: rgba(255,255,255,0.18);
+      --text: #e5eefc;
+      --muted: #b9c4da;
+      --accent1: #7c3aed;
+      --accent2: #2563eb;
+      --accent3: #06b6d4;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(124, 58, 237, 0.36), transparent 30%),
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.28), transparent 32%),
+        radial-gradient(circle at bottom center, rgba(6, 182, 212, 0.16), transparent 30%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    .wrap {
+      width: min(100%, 980px);
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .hero,
+    .panel,
+    .history {
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: auto -10% -40% auto;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.22), transparent 68%);
+      filter: blur(8px);
+      z-index: -1;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.16);
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 5vw, 4.3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #ffffff, #c4b5fd 30%, #7dd3fc 65%, #ffffff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .intro {
+      margin: 18px 0 26px;
+      max-width: 52ch;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .mini-card {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      min-height: 96px;
+    }
+
+    .mini-card .icon { font-size: 1.2rem; display: inline-block; margin-bottom: 8px; }
+    .mini-card h3 { margin: 0 0 6px; font-size: 0.98rem; }
+    .mini-card p { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.5; }
+
+    .panel {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 10px;
+      color: #dbe6ff;
+      font-weight: 600;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    input {
+      flex: 1 1 220px;
+      width: 100%;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.16);
+      outline: none;
+      background: rgba(15,23,42,0.45);
+      color: var(--text);
+      font-size: 1.05rem;
+      transition: 0.2s ease;
+    }
+
+    input:focus {
+      border-color: rgba(125, 211, 252, 0.65);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.16);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      flex: 1 1 160px;
+      border: 0;
+      border-radius: 18px;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(0px) scale(0.99); }
+
+    .primary {
+      color: white;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      box-shadow: 0 14px 30px rgba(37, 99, 235, 0.28);
+    }
+
+    .ghost {
+      color: var(--text);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .error,
+    .note {
+      margin: 0;
+      min-height: 22px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .error { color: #fecaca; }
+    .note { color: var(--muted); }
+
+    .results {
+      display: none;
+      gap: 14px;
+      animation: fadeUp 0.45s ease both;
+    }
+
+    .results.show { display: grid; }
+
+    .result-card {
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      transform: translateY(0);
+      animation: cardIn 0.35s ease both;
+    }
+
+    .result-card:nth-child(2) { animation-delay: 0.04s; }
+    .result-card:nth-child(3) { animation-delay: 0.08s; }
+    .result-card:nth-child(4) { animation-delay: 0.12s; }
+    .result-card:nth-child(5) { animation-delay: 0.16s; }
+    .result-card:nth-child(6) { animation-delay: 0.20s; }
+    .result-card:nth-child(7) { animation-delay: 0.24s; }
+    .result-card:nth-child(8) { animation-delay: 0.28s; }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      margin-top: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--muted);
+    }
+
+    .value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ffffff;
+      word-break: break-word;
+    }
+
+    .history {
+      grid-column: 1 / -1;
+      padding: 22px 24px 24px;
+    }
+
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .history-head h2,
+    .history-head p {
+      margin: 0;
+    }
+
+    .history-head p { color: var(--muted); }
+
+    .history-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .history-item {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .history-item strong { display: block; margin-bottom: 6px; }
+    .history-item span { color: var(--muted); font-size: 0.93rem; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 860px) {
+      .wrap { grid-template-columns: 1fr; }
+      .history-list { grid-template-columns: 1fr; }
+      .feature-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="badge">✨ Modern number explorer</div>
+      <h1><span class="gradient-text">Number Wizard</span></h1>
+      <p class="intro">Type any number and discover its secrets.</p>
+
+      <div class="feature-grid">
+        <div class="mini-card">
+          <div class="icon">🔢</div>
+          <h3>Smart analysis</h3>
+          <p>Checks odd/even, prime, factors, digits, and more.</p>
+        </div>
+        <div class="mini-card">
+          <div class="icon">⚡</div>
+          <h3>Fast results</h3>
+          <p>Click once and get a clear, stylish breakdown instantly.</p>
+        </div>
+        <div class="mini-card">
+          <div class="icon">🧠</div>
+          <h3>Works with decimals</h3>
+          <p>Shows decimal-specific results and explains what does not apply.</p>
+        </div>
+        <div class="mini-card">
+          <div class="icon">🎨</div>
+          <h3>Modern look</h3>
+          <p>Glass style, gradients, and smooth card animations.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div>
+        <label class="field-label" for="numberInput">Enter any number</label>
+        <div class="input-row">
+          <input type="number" id="numberInput" placeholder="Examples: 24, -7, 4.5" step="any" />
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="primary" onclick="analyzeNumber()">Analyze</button>
+        <button class="ghost" onclick="clearAll()">Clear</button>
+      </div>
+
+      <p id="errorMessage" class="error"></p>
+      <p id="helperMessage" class="note">Tip: integers can be odd/even, prime, and have factors. Decimals get special handling.</p>
+
+      <div id="results" class="results">
+        <div class="result-card"><div class="card-top">🌟 Number</div><div id="resNumber" class="value"></div></div>
+        <div class="result-card"><div class="card-top">🌓 Odd / Even</div><div id="resParity" class="value"></div></div>
+        <div class="result-card"><div class="card-top">💎 Type</div><div id="resType" class="value"></div></div>
+        <div class="result-card"><div class="card-top">🧩 Factors</div><div id="resFactors" class="value"></div></div>
+        <div class="result-card"><div class="card-top">🔢 Digits</div><div id="resDigits" class="value"></div></div>
+        <div class="result-card"><div class="card-top">➕ Sum of digits</div><div id="resDigitSum" class="value"></div></div>
+        <div class="result-card"><div class="card-top">🔄 Reverse</div><div id="resReverse" class="value"></div></div>
+        <div class="result-card"><div class="card-top">📏 Extra</div><div id="resExtra" class="value"></div></div>
+      </div>
+    </section>
+
+    <section class="history">
+      <div class="history-head">
+        <div>
+          <h2>Recent checks</h2>
+          <p>Last 3 results you analyzed.</p>
+        </div>
+      </div>
+      <div id="historyList" class="history-list"></div>
+    </section>
+  </main>
+
+  <script>
+    const input = document.getElementById('numberInput');
+    const errorMessage = document.getElementById('errorMessage');
+    const helperMessage = document.getElementById('helperMessage');
+    const results = document.getElementById('results');
+    const historyList = document.getElementById('historyList');
+
+    const history = [];
+
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') analyzeNumber();
+    });
+
+    function formatNumber(n) {
+      if (Number.isInteger(n)) return n.toString();
+      return n.toString();
+    }
+
+    function getDigitsOnly(numString) {
+      return numString.replace(/[^0-9]/g, '');
+    }
+
+    function getFactors(n) {
+      const abs = Math.abs(n);
+      const factors = [];
+      for (let i = 1; i <= abs; i++) {
+        if (abs % i === 0) factors.push(i);
+      }
+      return factors;
+    }
+
+    function reverseNumber(n) {
+      const str = Math.abs(n).toString();
+      const reversed = str.split('').reverse().join('');
+      if (str.includes('.')) {
+        return (n < 0 ? '-' : '') + reversed;
+      }
+      return (n < 0 ? '-' : '') + String(Number(reversed));
+    }
+
+    function updateHistory(displayNumber, typeText) {
+      history.unshift({ displayNumber, typeText });
+      while (history.length > 3) history.pop();
+
+      historyList.innerHTML = '';
+      history.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.innerHTML = `<strong>${item.displayNumber}</strong><span>${item.typeText}</span>`;
+        historyList.appendChild(div);
+      });
+    }
+
+    function analyzeNumber() {
+      const raw = input.value.trim();
+
+      if (raw === '' || Number.isNaN(Number(raw)) || !Number.isFinite(Number(raw))) {
+        errorMessage.textContent = 'Please enter a valid number.';
+        helperMessage.textContent = 'Examples: 24, -7, 4.5';
+        results.classList.remove('show');
+        return;
+      }
+
+      const n = Number(raw);
+      const isInteger = Number.isInteger(n);
+      const isNegative = n < 0;
+      const absN = Math.abs(n);
+      const display = formatNumber(n);
+
+      errorMessage.textContent = '';
+
+      let parity = 'Not applicable for decimals';
+      if (isInteger) parity = n % 2 === 0 ? 'Even' : 'Odd';
+
+      let typeText = 'Decimal number';
+      if (isInteger) {
+        if (absN === 0) typeText = 'Zero (special number)';
+        else if (absN === 1) typeText = 'Neither prime nor composite';
+        else if (getFactors(absN).length === 2) typeText = isNegative ? 'Prime (using the absolute value)' : 'Prime';
+        else typeText = isNegative ? 'Composite (using the absolute value)' : 'Composite';
+      }
+
+      const factorsText = isInteger
+        ? (absN === 0 ? 'All non-zero numbers divide 0' : getFactors(absN).join(', '))
+        : 'Prime and factors do not apply to decimals';
+
+      const digitsOnly = getDigitsOnly(raw);
+      const digitsCount = digitsOnly ? digitsOnly.length : 0;
+      const digitSum = digitsOnly ? digitsOnly.split('').reduce((sum, ch) => sum + Number(ch), 0) : 0;
+
+      const reverseText = isInteger
+        ? reverseNumber(n)
+        : `Reverse style: ${raw.split('').reverse().join('')}`;
+
+      let extraText = '';
+      if (isInteger) {
+        const square = n * n;
+        const cube = n * n * n;
+        const divisible = [2, 3, 5, 10].filter(d => n % d === 0);
+        extraText = `Square: ${square} | Cube: ${cube} | Divisible by: ${divisible.length ? divisible.join(', ') : 'none of 2, 3, 5, 10'}`;
+      } else {
+        extraText = `Decimal places: ${raw.includes('.') ? raw.split('.')[1].length : 0} | Square: ${n * n} | Cube: ${n * n * n}`;
+      }
+
+      document.getElementById('resNumber').textContent = display;
+      document.getElementById('resParity').textContent = parity;
+      document.getElementById('resType').textContent = typeText;
+      document.getElementById('resFactors').textContent = factorsText;
+      document.getElementById('resDigits').textContent = digitsCount;
+      document.getElementById('resDigitSum').textContent = digitSum;
+      document.getElementById('resReverse').textContent = reverseText;
+      document.getElementById('resExtra').textContent = extraText;
+
+      results.classList.remove('show');
+      void results.offsetWidth;
+      results.classList.add('show');
+
+      helperMessage.textContent = isInteger
+        ? 'This result includes integer checks, prime/composite logic, and factor analysis.'
+        : 'Prime and factors do not apply to decimals, so the page shows decimal-friendly results instead.';
+
+      updateHistory(display, `${parity} • ${typeText}`);
+      input.focus();
+      input.select();
+    }
+
+    function clearAll() {
+      input.value = '';
+      errorMessage.textContent = '';
+      helperMessage.textContent = 'Tip: integers can be odd/even, prime, and have factors. Decimals get special handling.';
+      results.classList.remove('show');
+      history.length = 0;
+      historyList.innerHTML = '';
+      input.focus();
+    }
+
+    // Start with a friendly example in the input, but do not analyze automatically.
+    input.placeholder = 'Examples: 24, -7, 4.5';
+  </script>
+</body>
+</html>
